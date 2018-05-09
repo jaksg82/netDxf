@@ -2,15 +2,15 @@
 
 //                        netDxf library
 // Copyright (C) 2009-2016 Daniel Carvajal (haplokuon@gmail.com)
-// 
+//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
 // version 2.1 of the License, or (at your option) any later version.
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -18,14 +18,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#endregion
+#endregion netDxf library, Copyright (C) 2009-2016 Daniel Carvajal (haplokuon@gmail.com)
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Windows.Media;
+
+//using System.Windows.Media;
 using netDxf.Collections;
+using netDxf.Portables;
 
 namespace netDxf.Tables
 {
@@ -48,7 +50,7 @@ namespace netDxf.Tables
         private GlyphTypeface glyphTypeface;
         private string fontFamilyName;
 
-        #endregion
+        #endregion private fields
 
         #region constants
 
@@ -65,7 +67,7 @@ namespace netDxf.Tables
             get { return new TextStyle(DefaultName, "simplex.shx"); }
         }
 
-        #endregion
+        #endregion constants
 
         #region constructors
 
@@ -121,7 +123,7 @@ namespace netDxf.Tables
             this.TrueTypeFontCheck(font);
         }
 
-        #endregion
+        #endregion constructors
 
         #region public properties
 
@@ -160,10 +162,10 @@ namespace netDxf.Tables
                         throw new ArgumentNullException(nameof(this.font));
                     if (!Path.GetExtension(this.font).Equals(".shx", StringComparison.OrdinalIgnoreCase))
                         throw new ArgumentException("The Big Font is only applicable for SHX Asian fonts.", nameof(this.font));
-                    if(!Path.GetExtension(value).Equals(".shx", StringComparison.OrdinalIgnoreCase))
+                    if (!Path.GetExtension(value).Equals(".shx", StringComparison.OrdinalIgnoreCase))
                         throw new ArgumentException("Only SHX files are valid file types.", nameof(value));
                     this.bigFont = value;
-                }               
+                }
             }
         }
 
@@ -260,11 +262,11 @@ namespace netDxf.Tables
         /// </summary>
         public new TextStyles Owner
         {
-            get { return (TextStyles) base.Owner; }
+            get { return (TextStyles)base.Owner; }
             internal set { base.Owner = value; }
         }
 
-        #endregion
+        #endregion public properties
 
         #region private methods
 
@@ -285,7 +287,7 @@ namespace netDxf.Tables
                 string file = Path.GetFileName(ttfFont);
                 fontFile = string.Format("{0}{1}{2}", Environment.GetFolderPath(Environment.SpecialFolder.Fonts),
                     Path.DirectorySeparatorChar, file);
-                // if the ttf does not even exist in the font system folder 
+                // if the ttf does not even exist in the font system folder
                 if (!File.Exists(fontFile))
                     return;
                 this.font = file;
@@ -301,7 +303,7 @@ namespace netDxf.Tables
             }
         }
 
-        #endregion
+        #endregion private methods
 
         #region overrides
 
@@ -332,6 +334,6 @@ namespace netDxf.Tables
             return this.Clone(this.Name);
         }
 
-        #endregion
+        #endregion overrides
     }
 }

@@ -2,15 +2,15 @@
 
 //                        netDxf library
 // Copyright (C) 2009-2017 Daniel Carvajal (haplokuon@gmail.com)
-// 
+//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
 // version 2.1 of the License, or (at your option) any later version.
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -18,15 +18,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#endregion
+#endregion netDxf library, Copyright (C) 2009-2017 Daniel Carvajal (haplokuon@gmail.com)
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
+//using System.Drawing;
 using System.IO;
 using netDxf.Collections;
 using netDxf.Tables;
 using netDxf.Units;
+using SkiaSharp;
 
 namespace netDxf.Objects
 {
@@ -42,14 +44,16 @@ namespace netDxf.Objects
         private readonly int width;
         private readonly int height;
         private ImageResolutionUnits resolutionUnits;
+
         // internally we will store the resolution in PPI
         private double horizontalResolution;
+
         private double verticalResolution;
 
         // this will store the references to the images that makes use of this image definition (key: image handle, value: reactor)
         private readonly Dictionary<string, ImageDefinitionReactor> reactors;
 
-        #endregion
+        #endregion private fields
 
         #region constructors
 
@@ -72,7 +76,7 @@ namespace netDxf.Objects
         /// <para>
         /// Note (this is from the ACAD docs): AutoCAD 2000, AutoCAD LT 2000, and later releases do not support LZW-compressed TIFF files,
         /// with the exception of English language versions sold in the US and Canada.<br />
-        /// If you have TIFF files that were created using LZW compression and want to insert them into a drawing 
+        /// If you have TIFF files that were created using LZW compression and want to insert them into a drawing
         /// you must save the TIFF files with LZW compression disabled.
         /// </para>
         /// </remarks>
@@ -101,7 +105,7 @@ namespace netDxf.Objects
         /// <para>
         /// Note (this is from the ACAD docs): AutoCAD 2000, AutoCAD LT 2000, and later releases do not support LZW-compressed TIFF files,
         /// with the exception of English language versions sold in the US and Canada.<br />
-        /// If you have TIFF files that were created using LZW compression and want to insert them into a drawing 
+        /// If you have TIFF files that were created using LZW compression and want to insert them into a drawing
         /// you must save the TIFF files with LZW compression disabled.
         /// </para>
         /// </remarks>
@@ -149,7 +153,7 @@ namespace netDxf.Objects
         ///  <para>
         ///  Note (this is from the ACAD docs): AutoCAD 2000, AutoCAD LT 2000, and later releases do not support LZW-compressed TIFF files,
         ///  with the exception of English language versions sold in the US and Canada.<br />
-        ///  If you have TIFF files that were created using LZW compression and want to insert them into a drawing 
+        ///  If you have TIFF files that were created using LZW compression and want to insert them into a drawing
         ///  you must save the TIFF files with LZW compression disabled.
         ///  </para>
         /// </remarks>
@@ -175,7 +179,7 @@ namespace netDxf.Objects
         ///  <para>
         ///  Note (this is from the ACAD docs): AutoCAD 2000, AutoCAD LT 2000, and later releases do not support LZW-compressed TIFF files,
         ///  with the exception of English language versions sold in the US and Canada.<br />
-        ///  If you have TIFF files that were created using LZW compression and want to insert them into a drawing 
+        ///  If you have TIFF files that were created using LZW compression and want to insert them into a drawing
         ///  you must save the TIFF files with LZW compression disabled.
         ///  </para>
         /// </remarks>
@@ -193,15 +197,30 @@ namespace netDxf.Objects
 
             try
             {
-                using (Image bitmap = Image.FromFile(fileName))
+                using (var input = File.OpenRead(this.fileName))
                 {
-                    this.width = bitmap.Width;
-                    this.height = bitmap.Height;
-                    this.horizontalResolution = bitmap.HorizontalResolution;
-                    this.verticalResolution = bitmap.VerticalResolution;
-                    // the System.Drawing.Image stores the image resolution in inches
-                    this.resolutionUnits = ImageResolutionUnits.Inches;
+                    using (var inputStream = new SKManagedStream(input))
+                    {
+                        using (var original = SKBitmap.Decode(inputStream))
+                        {
+                            this.width = original.Width;
+                            this.height = original.Height;
+                            this.horizontalResolution = 72.0; // Not available in SkiaSharp
+                            this.verticalResolution = 72.0; // Not available in SkiaSharp
+                            // the System.Drawing.Image stores the image resolution in inches
+                            this.resolutionUnits = ImageResolutionUnits.Inches;
+                        }
+                    }
                 }
+                //using (Image bitmap = Image.FromFile(fileName))
+                //{
+                //    this.width = bitmap.Width;
+                //    this.height = bitmap.Height;
+                //    this.horizontalResolution = bitmap.HorizontalResolution;
+                //    this.verticalResolution = bitmap.VerticalResolution;
+                //    // the System.Drawing.Image stores the image resolution in inches
+                //    this.resolutionUnits = ImageResolutionUnits.Inches;
+                //}
             }
             catch (Exception)
             {
@@ -211,7 +230,7 @@ namespace netDxf.Objects
             this.reactors = new Dictionary<string, ImageDefinitionReactor>();
         }
 
-        #endregion
+        #endregion constructors
 
         #region public properties
 
@@ -255,10 +274,12 @@ namespace netDxf.Objects
                             this.horizontalResolution /= 2.54;
                             this.verticalResolution /= 2.54;
                             break;
+
                         case ImageResolutionUnits.Inches:
                             this.horizontalResolution *= 2.54;
                             this.verticalResolution *= 2.54;
                             break;
+
                         case ImageResolutionUnits.Unitless:
                             break;
                     }
@@ -288,11 +309,11 @@ namespace netDxf.Objects
         /// </summary>
         public new ImageDefinitions Owner
         {
-            get { return (ImageDefinitions) base.Owner; }
+            get { return (ImageDefinitions)base.Owner; }
             internal set { base.Owner = value; }
         }
 
-        #endregion
+        #endregion public properties
 
         #region internal properties
 
@@ -301,7 +322,7 @@ namespace netDxf.Objects
             get { return this.reactors; }
         }
 
-        #endregion
+        #endregion internal properties
 
         #region overrides
 
@@ -324,6 +345,6 @@ namespace netDxf.Objects
             return this.Clone(this.Name);
         }
 
-        #endregion
+        #endregion overrides
     }
 }

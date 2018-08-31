@@ -8,10 +8,16 @@
     <Company />
     <Authors>Daniel Carvajal, Simone Giacomoni</Authors>
     <Product>netDxf for dotNet Standard 2.0</Product>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>A port to .NET Standard 2.0 of the netDxf library by Daniel Carvajal.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\netDxf.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="1.60.0" />
+    <PackageReference Include="SkiaSharp" Version="1.60.3" />
   </ItemGroup>
 
 </Project>
